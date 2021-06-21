@@ -50,25 +50,31 @@ func NewBlock(data string,prevBlockHash []byte) *Block{
 		Hash: []byte{},//先填空后面计算 //TODO
 		Data: []byte(data),
 	}
-	block.setHash();
+	//block.setHash();
+	pow := NewProofOfWork(&block)
+	//挖矿
+	hash,nonce := pow.Run()
+	//根据挖矿结果对数据进行赋值
+	block.Hash = hash
+	block.Nonce = nonce
 	return &block
 }
 
 //计算区块哈希函数
-func (blcok *Block)setHash(){
+func (block *Block)setHash(){
 	var blockInfo []byte
 	//拼装数据
 	tmp := [][]byte{
-		Uint64ToByte(blcok.Version),
-		blcok.PrevHash,
-		blcok.MerkelRoot,
-		Uint64ToByte(blcok.TimeStamp),
-		Uint64ToByte(blcok.Diffculty),
-		Uint64ToByte(blcok.Nonce),
-		blcok.Data,
+		Uint64ToByte(block.Version),
+		block.PrevHash,
+		block.MerkelRoot,
+		Uint64ToByte(block.TimeStamp),
+		Uint64ToByte(block.Diffculty),
+		Uint64ToByte(block.Nonce),
+		block.Data,
 	}
 	blockInfo = bytes.Join(tmp,[]byte{})
 	//计算sha256
 	hash := sha256.Sum256(blockInfo)
-	blcok.Hash = hash[:]
+	block.Hash = hash[:]
 }
