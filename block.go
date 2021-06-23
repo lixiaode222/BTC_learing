@@ -78,3 +78,9 @@ func (block *Block)setHash(){
 	hash := sha256.Sum256(blockInfo)
 	block.Hash = hash[:]
 }
+
+//区块链转成byte
+func (Block *Block) toByte() []byte{
+	//TODO
+	return []byte{}
+}

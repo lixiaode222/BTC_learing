@@ -19,7 +19,7 @@ func NewProofOfWork(block *Block) *ProofOfWork{
 	pow := ProofOfWork{
 		Block: block,
 	}
-	targetStr := "0000100000000000000000000000000000000000000000000000000000000000"
+	targetStr := "0001000000000000000000000000000000000000000000000000000000000000"
 	tmpInt := big.Int{}
 	tmpInt.SetString(targetStr,16)
 	pow.Target = &tmpInt
@@ -33,6 +33,7 @@ func (pow *ProofOfWork) Run() ([]byte,uint64) {
 	var hash [32]byte
 	var tmpInt big.Int
 	block := pow.Block
+	println("开始挖矿............")
 	for {
 		//拼装数据
 		tmp := [][]byte{
@@ -50,7 +51,7 @@ func (pow *ProofOfWork) Run() ([]byte,uint64) {
 		//与pow中的target进行比较
 		tmpInt.SetBytes(hash[:])
 		if tmpInt.Cmp(pow.Target) == -1{
-			fmt.Printf("挖矿成功! hash : %x，nonce : %d\n",tmpInt,nonce)
+			fmt.Printf("挖矿成功! hash : %064x  nonce : %d\n",tmpInt.Bytes(),nonce)
 			return  hash[:],nonce
 		}else{
 			nonce++
