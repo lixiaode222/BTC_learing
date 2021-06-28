@@ -40,7 +40,7 @@ func NewBlockChain() *BlcokChain{
 			//创建创世区块并加到链上
 			genesisBlock := GenesisBlock()
 			//将创世区块序列化后存入数据库
-			bucket.Put(genesisBlock.Hash,genesisBlock.toByte())
+			bucket.Put(genesisBlock.Hash,genesisBlock.Serialize())
 			bucket.Put([]byte("lastHashKey"),genesisBlock.Hash)
 			//写到内存里面
 			lastHash = genesisBlock.Hash
@@ -61,13 +61,24 @@ func GenesisBlock() *Block{
 
 //区块链添加区块方法
 func (blockChain  *BlcokChain)AddBlock(data string){
-	////取最后一个区块哈希
-	//lastBlock := blockChain.blocks[len(blockChain.blocks)-1]
-	//prevHash := lastBlock.Hash
-	////创建区块
-	//block := NewBlock(data,prevHash)
-	////将新区块加入链
-	//blockChain.blocks = append(blockChain.blocks,block)
+	//取最后一个区块哈希
+	db := blockChain.db
+	lastHash := blockChain.tail
+	//创建区块
+	db.Update(func(tx *bolt.Tx) error {
+		//完成数据的添加
+		bucket := tx.Bucket([]byte(blockBucket))
+		if bucket == nil{
+			log.Panic("bucket不应该为空，请检查!")
+		}
+		block := NewBlock(data,lastHash)
+		//添加到区块链DB中
+		bucket.Put(block.Hash,block.Serialize())
+		bucket.Put([]byte("lastHashKey"),block.Hash)
+		//更新到内存中
+		blockChain.tail = block.Hash
+		return nil
+	})
 }
 
 

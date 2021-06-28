@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
+	"encoding/gob"
 	"log"
 	"time"
 )
@@ -79,8 +80,26 @@ func (block *Block)setHash(){
 	block.Hash = hash[:]
 }
 
-//区块链转成byte
-func (Block *Block) toByte() []byte{
-	//TODO
-	return []byte{}
+//序列化
+func (block *Block) Serialize() []byte{
+	var buffer bytes.Buffer
+	//使用gob进行序列化
+	//定义一个编码器
+	encoder := gob.NewEncoder(&buffer)
+	err := encoder.Encode(&block)
+	if err != nil{
+		log.Panic("序列化出错")
+	}
+	return buffer.Bytes()
+}
+
+//反序列化
+func Deserialize(data []byte) Block{
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	var block Block
+	err := decoder.Decode(&block)
+	if err != nil{
+		log.Panic("反序列化出错")
+	}
+	return block
 }
